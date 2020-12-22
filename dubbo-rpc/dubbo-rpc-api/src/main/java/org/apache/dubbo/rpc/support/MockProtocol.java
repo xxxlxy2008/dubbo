@@ -34,11 +34,13 @@ final public class MockProtocol extends AbstractProtocol {
 
     @Override
     public <T> Exporter<T> export(Invoker<T> invoker) throws RpcException {
+        // 直接抛出异常，无法暴露服务
         throw new UnsupportedOperationException();
     }
 
     @Override
     public <T> Invoker<T> protocolBindingRefer(Class<T> type, URL url) throws RpcException {
+        // 直接创建MockInvoker对象
         return new MockInvoker<>(url, type);
     }
 }

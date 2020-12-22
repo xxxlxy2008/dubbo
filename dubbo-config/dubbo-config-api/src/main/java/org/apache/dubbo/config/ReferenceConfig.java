@@ -199,7 +199,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
         map.put(SIDE_KEY, CONSUMER_SIDE); // 添加side参数
         // 添加Dubbo版本、release参数、timestamp参数、pid参数
         ReferenceConfigBase.appendRuntimeParameters(map);
-        if (!ProtocolUtils.isGeneric(generic)) { // 对
+        if (!ProtocolUtils.isGeneric(generic)) {
             String revision = Version.getVersion(interfaceClass, version);
             if (revision != null && revision.length() > 0) {
                 map.put(REVISION_KEY, revision);
@@ -251,10 +251,11 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
         } else if (isInvalidLocalHost(hostToRegistry)) {
             throw new IllegalArgumentException("Specified invalid registry ip from property:" + DUBBO_IP_TO_REGISTRY + ", value:" + hostToRegistry);
         }
+        // 添加ip参数
         map.put(REGISTER_IP_KEY, hostToRegistry);
 
         serviceMetadata.getAttachments().putAll(map);
-
+        // 调用createProxy()方法，创建代理
         ref = createProxy(map);
 
         serviceMetadata.setTarget(ref);
@@ -265,7 +266,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
 
         initialized = true;
 
-        // dispatch a ReferenceConfigInitializedEvent since 2.7.4
+        // 触发ReferenceConfigInitializedEvent事件
         dispatch(new ReferenceConfigInitializedEvent(this, invoker));
     }
 
@@ -281,7 +282,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
             }
         } else {
             urls.clear();
-            if (url != null && url.length() > 0) { // user specified URL, could be peer-to-peer address, or register center's address.
+            if (url != null && url.length() > 0) {
                 String[] us = SEMICOLON_SPLIT_PATTERN.split(url); // 配置多个URL的时候，会用分号进行切分
                 if (us != null && us.length > 0) { // url不为空，表明用户可能想进行点对点调用
                     for (String u : us) {
@@ -321,7 +322,8 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
             }
 
             if (urls.size() == 1) {
-                // 在单注册中心或是直连单个服务提供方的时候，通过Protocol的适配器选择对应的Protocol实现创建Invoker对象
+                // 在单注册中心或是直连单个服务提供方的时候，
+                // 通过Protocol的适配器选择对应的Protocol实现创建Invoker对象
                 invoker = REF_PROTOCOL.refer(interfaceClass, urls.get(0));
             } else {
                 // 多注册中心或是直连多个服务提供方的时候，会根据每个URL创建Invoker对象

@@ -189,10 +189,10 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             bootstrap = DubboBootstrap.getInstance();
             bootstrap.init();
         }
-
+        // 检查并更新各项配置
         checkAndUpdateSubConfigs();
 
-        //init serviceMetadata
+        // 初始化元数据相关服务
         serviceMetadata.setVersion(version);
         serviceMetadata.setGroup(group);
         serviceMetadata.setDefaultGroup(group);
@@ -200,13 +200,13 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         serviceMetadata.setServiceInterfaceName(getInterface());
         serviceMetadata.setTarget(getRef());
 
-        if (shouldDelay()) {
+        if (shouldDelay()) {  // 延迟发布
             DELAY_EXPORT_EXECUTOR.schedule(this::doExport, getDelay(), TimeUnit.MILLISECONDS);
-        } else {
+        } else { // 立即发布
             doExport();
         }
 
-        exported();
+        exported(); // 回调监听器
     }
 
     public void exported() {
@@ -531,11 +531,12 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
      * always export injvm
      */
     private void exportLocal(URL url) {
-        URL local = URLBuilder.from(url)
+        URL local = URLBuilder.from(url) // 创建新URL
                 .setProtocol(LOCAL_PROTOCOL)
                 .setHost(LOCALHOST_VALUE)
                 .setPort(0)
                 .build();
+        // 本地发布
         Exporter<?> exporter = PROTOCOL.export(
                 PROXY_FACTORY.getInvoker(ref, (Class) interfaceClass, local));
         exporters.add(exporter);

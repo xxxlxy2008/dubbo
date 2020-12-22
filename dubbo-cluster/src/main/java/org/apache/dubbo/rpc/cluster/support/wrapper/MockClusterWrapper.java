@@ -30,11 +30,13 @@ public class MockClusterWrapper implements Cluster {
     private Cluster cluster;
 
     public MockClusterWrapper(Cluster cluster) {
+        // Wrapper类都会有一个拷贝构造函数
         this.cluster = cluster;
     }
 
     @Override
     public <T> Invoker<T> join(Directory<T> directory) throws RpcException {
+        // 用MockClusterInvoker进行包装
         return new MockClusterInvoker<T>(directory,
                 this.cluster.join(directory));
     }

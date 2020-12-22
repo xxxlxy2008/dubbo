@@ -29,35 +29,14 @@ import static org.apache.dubbo.common.extension.ExtensionLoader.getExtensionLoad
  */
 @SPI("default")
 public interface ServiceNameMapping {
-
-    /**
-     * Map the specified Dubbo service interface, group, version and protocol to current Dubbo service name
-     *
-     * @param serviceInterface the class name of Dubbo service interface
-     * @param group            the group of Dubbo service interface (optional)
-     * @param version          the version of Dubbo service interface version (optional)
-     * @param protocol         the protocol of Dubbo service interface exported (optional)
-     */
+    // 服务接口、group、version、protocol四部分构成了Service ID，并与当前Service Name之间形成映射，
+    // 记录到配置中心
     void map(String serviceInterface, String group, String version, String protocol);
 
-    /**
-     * Get the service names from the specified Dubbo service interface, group, version and protocol
-     *
-     * @param serviceInterface the class name of Dubbo service interface
-     * @param group            the group of Dubbo service interface (optional)
-     * @param version          the version of Dubbo service interface version (optional)
-     * @param protocol         the protocol of Dubbo service interface exported (optional)
-     * @return
-     */
+    // 根据服务接口、group、version、protocol四部分构成的Service ID，查询对应的Service Name
     Set<String> get(String serviceInterface, String group, String version, String protocol);
 
-
-    /**
-     * Get the default extension of {@link ServiceNameMapping}
-     *
-     * @return non-null {@link ServiceNameMapping}
-     * @see DynamicConfigurationServiceNameMapping
-     */
+    // 获取默认的ServiceNameMapping接口的扩展实现
     static ServiceNameMapping getDefaultExtension() {
         return getExtensionLoader(ServiceNameMapping.class).getDefaultExtension();
     }

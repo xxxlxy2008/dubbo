@@ -58,7 +58,7 @@ public class MockInvokersSelector extends AbstractRouter {
                 // invocation.need.mock为null，会过滤掉MockedInvoker，只返回正常的Invoker对象
                 return getNormalInvokers(invokers);
             } else if (Boolean.TRUE.toString().equalsIgnoreCase(value)) {
-                // invocation.need.mock为true，会过滤掉MockedInvoker，只返回正常的Invoker对象
+                // invocation.need.mock为true，只返回MockedInvoker，过滤掉正常的Invoker
                 return getMockedInvokers(invokers);
             }
         }

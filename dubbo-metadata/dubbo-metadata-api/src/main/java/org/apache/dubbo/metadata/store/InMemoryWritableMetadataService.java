@@ -133,13 +133,17 @@ public class InMemoryWritableMetadataService implements WritableMetadataService 
     @Override
     public void publishServiceDefinition(URL providerUrl) {
         try {
+            // 获取服务接口
             String interfaceName = providerUrl.getParameter(INTERFACE_KEY);
             if (StringUtils.isNotEmpty(interfaceName)
                     && !ProtocolUtils.isGeneric(providerUrl.getParameter(GENERIC_KEY))) {
                 Class interfaceClass = Class.forName(interfaceName);
+                // 创建服务接口对应的ServiceDefinition对象
                 ServiceDefinition serviceDefinition = ServiceDefinitionBuilder.build(interfaceClass);
+                // 将ServiceDefinition对象序列化为JSON对象
                 Gson gson = new Gson();
                 String data = gson.toJson(serviceDefinition);
+                // 将ServiceDefinition对象序列化之后的JSON字符串记录到serviceDefinitions集合
                 serviceDefinitions.put(providerUrl.getServiceKey(), data);
                 return;
             }

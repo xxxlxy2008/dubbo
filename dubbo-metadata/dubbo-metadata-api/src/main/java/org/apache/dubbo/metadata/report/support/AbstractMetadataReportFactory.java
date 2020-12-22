@@ -36,20 +36,24 @@ public abstract class AbstractMetadataReportFactory implements MetadataReportFac
 
     @Override
     public MetadataReport getMetadataReport(URL url) {
+        // 清理export、refer参数
         url = url.setPath(MetadataReport.class.getName())
                 .removeParameters(EXPORT_KEY, REFER_KEY);
         String key = url.toServiceString();
-        // Lock the metadata access process to ensure a single instance of the metadata instance
         LOCK.lock();
         try {
+            // 从SERVICE_STORE_MAP集合（ConcurrentHashMap<String, MetadataReport>类型）中
+            // 查询是否已经缓存有对应的MetadataReport对象
             MetadataReport metadataReport = SERVICE_STORE_MAP.get(key);
-            if (metadataReport != null) {
+            if (metadataReport != null) { // 直接返回缓存的MetadataReport对象
                 return metadataReport;
             }
+            // 创建新的MetadataReport对象，createMetadataReport()方法由子类具体实现
             metadataReport = createMetadataReport(url);
             if (metadataReport == null) {
                 throw new IllegalStateException("Can not create metadata Report " + url);
             }
+            // 将MetadataReport缓存到SERVICE_STORE_MAP集合中
             SERVICE_STORE_MAP.put(key, metadataReport);
             return metadataReport;
         } finally {

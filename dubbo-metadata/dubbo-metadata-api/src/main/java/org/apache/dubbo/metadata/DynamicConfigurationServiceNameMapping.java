@@ -48,7 +48,8 @@ public class DynamicConfigurationServiceNameMapping implements ServiceNameMappin
             return;
         }
         // 获取DynamicConfiguration对象
-        DynamicConfiguration dynamicConfiguration = DynamicConfiguration.getDynamicConfiguration();
+        DynamicConfiguration dynamicConfiguration =
+                DynamicConfiguration.getDynamicConfiguration();
 
         // the Dubbo Service Key as group
         // the service(application) name as key
@@ -58,7 +59,8 @@ public class DynamicConfigurationServiceNameMapping implements ServiceNameMappin
         execute(() -> {
             // 在配置中心创建映射关系，这里的buildGroup()方法虽然接收四个参数，但是只使用了serviceInterface
             // 也就是使用创建了服务接口到Service Name的映射
-            dynamicConfiguration.publishConfig(key, buildGroup(serviceInterface, group, version, protocol), content);
+            dynamicConfiguration.publishConfig(key,
+                    buildGroup(serviceInterface, group, version, protocol), content);
             if (logger.isInfoEnabled()) {
                 logger.info(String.format("Dubbo service[%s] mapped to interface name[%s].",
                         group, serviceInterface, group));
@@ -68,14 +70,18 @@ public class DynamicConfigurationServiceNameMapping implements ServiceNameMappin
 
     @Override
     public Set<String> get(String serviceInterface, String group, String version, String protocol) {
-
-        DynamicConfiguration dynamicConfiguration = DynamicConfiguration.getDynamicConfiguration();
+        // 获取DynamicConfiguration对象
+        DynamicConfiguration dynamicConfiguration =
+                DynamicConfiguration.getDynamicConfiguration();
 
         Set<String> serviceNames = new LinkedHashSet<>();
         execute(() -> {
-            Set<String> keys = dynamicConfiguration.getConfigKeys(buildGroup(serviceInterface, group, version, protocol));
+            // 根据Service ID从配置查找Service Name
+            Set<String> keys = dynamicConfiguration.getConfigKeys(
+                    buildGroup(serviceInterface, group, version, protocol));
             serviceNames.addAll(keys);
         });
+        // 返回查找到的全部Service Name
         return Collections.unmodifiableSet(serviceNames);
     }
 

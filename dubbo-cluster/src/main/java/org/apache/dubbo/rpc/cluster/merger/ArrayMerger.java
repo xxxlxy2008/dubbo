@@ -42,6 +42,7 @@ public class ArrayMerger implements Merger<Object[]> {
             return new Object[0];
         }
 
+        // 获取元素类型
         Class<?> type = items[i].getClass().getComponentType();
 
         int totalLen = 0;
@@ -63,7 +64,8 @@ public class ArrayMerger implements Merger<Object[]> {
         Object result = Array.newInstance(type, totalLen);
 
         int index = 0;
-        for (Object[] array : items) { // 遍历全部的结果数组，将结果数组中的每个元素都加到result中，形成一维数组
+        // 遍历全部的结果数组，将items二维数组中的每个元素都加到result中，形成一维数组
+        for (Object[] array : items) {
             if (array != null) {
                 for (int j = 0; j < array.length; j++) {
                     Array.set(result, index++, array[j]);

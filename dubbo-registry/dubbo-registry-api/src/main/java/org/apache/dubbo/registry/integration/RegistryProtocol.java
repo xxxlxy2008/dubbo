@@ -230,8 +230,7 @@ public class RegistryProtocol implements Protocol {
         exporter.setRegisterUrl(registeredProviderUrl);
         exporter.setSubscribeUrl(overrideSubscribeUrl);
 
-        notifyExport(exporter);
-        //Ensure that a new exporter instance is returned every time export
+        notifyExport(exporter); // 触发RegistryProtocolListener监听器
         return new DestroyableExporter<>(exporter);
     }
 
@@ -475,14 +474,19 @@ public class RegistryProtocol implements Protocol {
         directory.setProtocol(protocol);
         // 生成SubscribeUrl，协议为consumer，具体的参数是RegistryURL中refer参数指定的参数
         Map<String, String> parameters = new HashMap<String, String>(directory.getConsumerUrl().getParameters());
-        URL subscribeUrl = new URL(CONSUMER_PROTOCOL, parameters.remove(REGISTER_IP_KEY), 0, type.getName(), parameters);
+        URL subscribeUrl = new URL(CONSUMER_PROTOCOL,
+                parameters.remove(REGISTER_IP_KEY), 0, type.getName(), parameters);
         if (directory.isShouldRegister()) {
-            directory.setRegisteredConsumerUrl(subscribeUrl); // 在SubscribeUrl中添加category=consumers和check=false参数
-            registry.register(directory.getRegisteredConsumerUrl()); // 服务注册，在Zookeeper的consumers节点下，添加该Consumer对应的节点
+            // 在SubscribeUrl中添加category=consumers和check=false参数
+            directory.setRegisteredConsumerUrl(subscribeUrl);
+            // 服务注册，在Zookeeper的consumers节点下，添加该Consumer对应的节点
+            registry.register(directory.getRegisteredConsumerUrl());
         }
         directory.buildRouterChain(subscribeUrl); // 根据SubscribeUrl创建服务路由
-        // 订阅服务，toSubscribeUrl()方法会将SubscribeUrl中category参数修改为"providers,configurators,routers"
-        // RegistryDirectory的subscribe()在前面详细分析过了，其中会通过Registry订阅服务，同时还会添加相应的监听器
+        // 订阅服务，toSubscribeUrl()方法会将SubscribeUrl中category参数修改
+        // 为"providers,configurators,routers"
+        // RegistryDirectory的subscribe()在前面详细分析过了，其中会通过Registry订阅服务，
+        // 同时还会添加相应的监听器
         directory.subscribe(toSubscribeUrl(subscribeUrl));
 
         // 注册中心中可能包含多个Provider，相应的，也就有多个Invoker，
@@ -494,7 +498,8 @@ public class RegistryProtocol implements Protocol {
         if (CollectionUtils.isEmpty(listeners)) {
             return invoker;
         }
-        // 为了方便在监听器中回调，这里将此次引用使用到的Directory对象、Cluster对象、Invoker对象以及SubscribeUrl
+        // 为了方便在监听器中回调，这里将此次引用使用到的Directory对象、Cluster对象、
+        // Invoker对象以及SubscribeUrl
         // 封装到一个RegistryInvokerWrapper中，传递给监听器中
         RegistryInvokerWrapper<T> registryInvokerWrapper = new RegistryInvokerWrapper<>(directory, cluster, invoker, subscribeUrl);
         for (RegistryProtocolListener listener : listeners) {

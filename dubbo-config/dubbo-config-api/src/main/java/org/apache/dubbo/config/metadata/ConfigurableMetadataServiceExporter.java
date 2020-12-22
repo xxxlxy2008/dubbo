@@ -65,17 +65,22 @@ public class ConfigurableMetadataServiceExporter implements MetadataServiceExpor
     public ConfigurableMetadataServiceExporter export() {
 
         if (!isExported()) {
-
+            // 创建ServiceConfig对象
             ServiceConfig<MetadataService> serviceConfig = new ServiceConfig<>();
             serviceConfig.setApplication(getApplicationConfig());
             serviceConfig.setRegistries(getRegistries());
+            // 设置Protocol（默认是Dubbo）
             serviceConfig.setProtocol(generateMetadataProtocol());
+            // 设置服务接口
             serviceConfig.setInterface(MetadataService.class);
+            // 设置MetadataService对象
             serviceConfig.setRef(metadataService);
+            // 设置group
             serviceConfig.setGroup(getApplicationConfig().getName());
+            // 设置version
             serviceConfig.setVersion(metadataService.version());
 
-            // export
+            // 发布MetadataService服务，ServiceConfig发布服务的流程在前面已经详细分析过了，这里不再展开
             serviceConfig.export();
 
             if (logger.isInfoEnabled()) {

@@ -163,11 +163,10 @@ public class MockClusterInvoker<T> implements Invoker<T> {
      */
     private List<Invoker<T>> selectMockInvoker(Invocation invocation) {
         List<Invoker<T>> invokers = null;
-        //TODO generic invoker？
         if (invocation instanceof RpcInvocation) {
-            //Note the implicit contract (although the description is added to the interface declaration, but extensibility is a problem. The practice placed in the attachment needs to be improved)
-            ((RpcInvocation) invocation).setAttachment(INVOCATION_NEED_MOCK, Boolean.TRUE.toString());
-            //directory will return a list of normal invokers if Constants.INVOCATION_NEED_MOCK is present in invocation, otherwise, a list of mock invokers will return.
+            // 将Invocation附属信息中的invocation.need.mock属性设置为true
+            ((RpcInvocation) invocation).setAttachment(INVOCATION_NEED_MOCK,
+                    Boolean.TRUE.toString());
             try {
                 invokers = directory.list(invocation);
             } catch (RpcException e) {

@@ -66,112 +66,45 @@ public interface MetadataService {
      */
     String VERSION = "1.0.0";
 
-    /**
-     * Gets the current Dubbo Service name
-     *
-     * @return non-null
-     */
+    // 获取当前ServiceInstance所属服务的名称
     String serviceName();
 
-    /**
-     * Gets the version of {@link MetadataService} that always equals {@link #VERSION}
-     *
-     * @return non-null
-     * @see #VERSION
-     */
+
     default String version() {
-        return VERSION;
+        return VERSION; // 获取当前MetadataService接口的版本
     }
 
-    /**
-     * the list of String that presents all Dubbo subscribed {@link URL urls}
-     *
-     * @return the non-null read-only {@link SortedSet sorted set} of {@link URL#toFullString() strings} presenting the {@link URL URLs}
-     * @see #toSortedStrings(Stream)
-     * @see URL#toFullString()
-     */
+    // 获取当前ServiceInstance订阅的全部URL
     default SortedSet<String> getSubscribedURLs(){
         throw new UnsupportedOperationException("This operation is not supported for consumer.");
     }
 
-    /**
-     * Get the {@link SortedSet sorted set} of String that presents all Dubbo exported {@link URL urls}
-     *
-     * @return the non-null read-only {@link SortedSet sorted set} of {@link URL#toFullString() strings} presenting the {@link URL URLs}
-     * @see #toSortedStrings(Stream)
-     * @see URL#toFullString()
-     */
+    // 获取当前ServiceInstance发布的全部URL
     default SortedSet<String> getExportedURLs() {
         return getExportedURLs(ALL_SERVICE_INTERFACES);
     }
 
-    /**
-     * Get the {@link SortedSet sorted set} of String that presents the specified Dubbo exported {@link URL urls} by the <code>serviceInterface</code>
-     *
-     * @param serviceInterface The class name of Dubbo service interface
-     * @return the non-null read-only {@link SortedSet sorted set} of {@link URL#toFullString() strings} presenting the {@link URL URLs}
-     * @see #toSortedStrings(Stream)
-     * @see URL#toFullString()
-     */
+    // 根据服务接口查找当前ServiceInstance暴露的全部接口
     default SortedSet<String> getExportedURLs(String serviceInterface) {
         return getExportedURLs(serviceInterface, null);
     }
 
-    /**
-     * Get the {@link SortedSet sorted set} of String that presents the specified Dubbo exported {@link URL urls} by the
-     * <code>serviceInterface</code> and <code>group</code>
-     *
-     * @param serviceInterface The class name of Dubbo service interface
-     * @param group            the Dubbo Service Group (optional)
-     * @return the non-null read-only {@link SortedSet sorted set} of {@link URL#toFullString() strings} presenting the {@link URL URLs}
-     * @see #toSortedStrings(Stream)
-     * @see URL#toFullString()
-     */
+    // 根据服务接口和group两个条件查找当前ServiceInstance暴露的全部接口
     default SortedSet<String> getExportedURLs(String serviceInterface, String group) {
         return getExportedURLs(serviceInterface, group, null);
     }
 
-    /**
-     * Get the {@link SortedSet sorted set} of String that presents the specified Dubbo exported {@link URL urls} by the
-     * <code>serviceInterface</code>, <code>group</code> and <code>version</code>
-     *
-     * @param serviceInterface The class name of Dubbo service interface
-     * @param group            the Dubbo Service Group (optional)
-     * @param version          the Dubbo Service Version (optional)
-     * @return the non-null read-only {@link SortedSet sorted set} of {@link URL#toFullString() strings} presenting the {@link URL URLs}
-     * @see #toSortedStrings(Stream)
-     * @see URL#toFullString()
-     */
+    // 根据服务接口、group和version三个条件查找当前ServiceInstance暴露的全部接口
     default SortedSet<String> getExportedURLs(String serviceInterface, String group, String version) {
         return getExportedURLs(serviceInterface, group, version, null);
     }
 
-    /**
-     * Get the sorted set of String that presents the specified Dubbo exported {@link URL urls} by the
-     * <code>serviceInterface</code>, <code>group</code>, <code>version</code> and <code>protocol</code>
-     *
-     * @param serviceInterface The class name of Dubbo service interface
-     * @param group            the Dubbo Service Group (optional)
-     * @param version          the Dubbo Service Version (optional)
-     * @param protocol         the Dubbo Service Protocol (optional)
-     * @return the non-null read-only {@link SortedSet sorted set} of {@link URL#toFullString() strings} presenting the {@link URL URLs}
-     * @see #toSortedStrings(Stream)
-     * @see URL#toFullString()
-     */
+    // 根据服务接口、group、version和protocol四个条件查找当前ServiceInstance暴露的全部接口
     SortedSet<String> getExportedURLs(String serviceInterface, String group, String version, String protocol);
 
-    /**
-     * Interface definition.
-     *
-     * @return
-     */
+    // 根据指定条件查询ServiceDefinition
     String getServiceDefinition(String interfaceName, String version, String group);
 
-    /**
-     * Interface definition.
-     *
-     * @return
-     */
     String getServiceDefinition(String serviceKey);
 
     /**

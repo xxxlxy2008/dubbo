@@ -84,8 +84,6 @@ public class RemoteWritableMetadataService implements WritableMetadataService {
     }
 
     private void publishProvider(URL providerUrl) throws RpcException {
-        //first add into the list
-        // remove the individual param
         // 删除pid、timestamp、bind.ip、bind.port等参数
         providerUrl = providerUrl.removeParameters(PID_KEY, TIMESTAMP_KEY, Constants.BIND_IP_KEY,
                 Constants.BIND_PORT_KEY, TIMESTAMP_KEY);

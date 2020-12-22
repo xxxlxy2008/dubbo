@@ -27,12 +27,12 @@ public class IntArrayMerger implements Merger<int[]> {
 
     @Override
     public int[] merge(int[]... items) {
-        if (ArrayUtils.isEmpty(items)) {
+        if (ArrayUtils.isEmpty(items)) { // 检测传入的多个int[]不能为空
             return new int[0];
         }
+        // 直接使用Stream的API将多个int[]数组拍平成一个int[]数组
         return Arrays.stream(items).filter(Objects::nonNull)
                 .flatMapToInt(Arrays::stream)
                 .toArray();
     }
-
 }

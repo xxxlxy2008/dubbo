@@ -45,7 +45,7 @@ public class ReferenceConfigCache {
      * key example: <code>group1/org.apache.dubbo.foo.FooService:1.0.0</code>.
      */
     public static final KeyGenerator DEFAULT_KEY_GENERATOR = referenceConfig -> {
-        String iName = referenceConfig.getInterface();
+        String iName = referenceConfig.getInterface(); // 获取服务接口名称
         if (StringUtils.isBlank(iName)) {
             Class<?> clazz = referenceConfig.getInterfaceClass();
             iName = clazz.getName();
@@ -62,6 +62,7 @@ public class ReferenceConfigCache {
         if (!StringUtils.isBlank(referenceConfig.getVersion())) {
             ret.append(":").append(referenceConfig.getVersion());
         }
+        // Key的格式是group/interface:version
         return ret.toString();
     };
 

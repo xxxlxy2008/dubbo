@@ -30,8 +30,10 @@ public class SetMerger implements Merger<Set<?>> {
     @Override
     public Set<Object> merge(Set<?>... items) {
         if (ArrayUtils.isEmpty(items)) {
+            // 空结果集时，这就返回空Set集合
             return Collections.emptySet();
         }
+        // 创建一个新的HashSet集合，传入的所有Set集合都添加到result中
         Set<Object> result = new HashSet<Object>();
         Stream.of(items).filter(Objects::nonNull).forEach(result::addAll);
         return result;

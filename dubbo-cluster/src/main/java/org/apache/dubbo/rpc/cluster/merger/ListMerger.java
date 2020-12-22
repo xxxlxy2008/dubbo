@@ -32,12 +32,13 @@ public class ListMerger implements Merger<List<?>> {
     @Override
     public List<Object> merge(List<?>... items) {
         if (ArrayUtils.isEmpty(items)) {
+            // 空结果集时，这就返回空Set集合
             return Collections.emptyList();
         }
+        // 通过Stream API将传入的所有List集合拍平成一个List集合并返回
         return Stream.of(items).filter(Objects::nonNull)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
-
     }
 
 }

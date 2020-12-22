@@ -86,7 +86,6 @@ public abstract class AbstractMetadataReport implements MetadataReport {
     // Log output
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    // Local disk cache, where the special key value.registries records the list of metadata centers, and the others are the list of notified service providers
     // 本地磁盘缓存，用来缓存上报的元数据
     final Properties properties = new Properties();
     // 内存缓存
@@ -153,39 +152,42 @@ public abstract class AbstractMetadataReport implements MetadataReport {
 
     private void doSaveProperties(long version) {
         if (version < lastCacheChanged.get()) {
-            return;
+            return; // 对比当前版本号和此次SaveProperties任务的版本号
         }
-        if (file == null) {
+        if (file == null) { // 检测本地缓存文件是否存在
             return;
         }
         // Save
         try {
+            // 创建lock文件
             File lockfile = new File(file.getAbsolutePath() + ".lock");
             if (!lockfile.exists()) {
                 lockfile.createNewFile();
             }
             try (RandomAccessFile raf = new RandomAccessFile(lockfile, "rw");
                  FileChannel channel = raf.getChannel()) {
-                FileLock lock = channel.tryLock();
+                FileLock lock = channel.tryLock(); // 对lock文件加锁
                 if (lock == null) {
                     throw new IOException("Can not lock the metadataReport cache file " + file.getAbsolutePath() + ", ignore and retry later, maybe multi java process use the file, please config: dubbo.metadata.file=xxx.properties");
                 }
                 // Save
                 try {
-                    if (!file.exists()) {
+                    if (!file.exists()) { // 保证本地缓存文件存在
                         file.createNewFile();
                     }
+                    // 将properties中的元数据保存到本地缓存文件中
                     try (FileOutputStream outputFile = new FileOutputStream(file)) {
                         properties.store(outputFile, "Dubbo metadataReport Cache");
                     }
                 } finally {
-                    lock.release();
+                    lock.release(); // 释放lock文件上的锁
                 }
             }
         } catch (Throwable e) {
             if (version < lastCacheChanged.get()) {
-                return;
+                return; // 比较版本号
             } else {
+                // 如果写文件失败，则重新提交SaveProperties任务，再次尝试
                 reportCacheExecutor.execute(new SaveProperties(lastCacheChanged.incrementAndGet()));
             }
             logger.warn("Failed to save service store file, cause: " + e.getMessage(), e);
@@ -261,7 +263,7 @@ public abstract class AbstractMetadataReport implements MetadataReport {
             if (logger.isInfoEnabled()) {
                 logger.info("store provider metadata. Identifier : " + providerMetadataIdentifier + "; definition: " + serviceDefinition);
             }
-            // 将元数据记录到storeProviderMetadataTask集合
+            // 将元数据记录到allMetadataReports集合
             allMetadataReports.put(providerMetadataIdentifier, serviceDefinition);
             // 如果之前上报失败，则在failedReports集合中有记录，这里上报成功之后会将其删除
             failedReports.remove(providerMetadataIdentifier);
@@ -365,9 +367,11 @@ public abstract class AbstractMetadataReport implements MetadataReport {
     }
 
     private boolean doHandleMetadataCollection(Map<MetadataIdentifier, Object> metadataMap) {
-        if (metadataMap.isEmpty()) {
+        if (metadataMap.isEmpty()) { // 没有上报失败的元数据
             return true;
         }
+        // 遍历failedReports集合中失败上报的元数据，
+        // 逐个调用storeProviderMetadata()方法或storeConsumerMetadata()方法重新上报
         Iterator<Map.Entry<MetadataIdentifier, Object>> iterable = metadataMap.entrySet().iterator();
         while (iterable.hasNext()) {
             Map.Entry<MetadataIdentifier, Object> item = iterable.next();
@@ -407,15 +411,22 @@ public abstract class AbstractMetadataReport implements MetadataReport {
 
     class MetadataReportRetry {
         protected final Logger logger = LoggerFactory.getLogger(getClass());
-
+        // 执行重试任务的线程池
         final ScheduledExecutorService retryExecutor = Executors.newScheduledThreadPool(0, new NamedThreadFactory("DubboMetadataReportRetryTimer", true));
+
+        // 重试任务关联的Future对象
         volatile ScheduledFuture retryScheduledFuture;
+
+        // 记录重试任务的次数
         final AtomicInteger retryCounter = new AtomicInteger(0);
-        // retry task schedule period
+
+        // 重试任务的时间间隔
         long retryPeriod;
-        // if no failed report, wait how many times to run retry task.
+
+        // 无失败上报的元数据之后，重试任务会再执行600次，才会销毁
         int retryTimesIfNonFail = 600;
 
+        // 失败重试的次数上限，默认为100次，即重试失败100次之后会放弃
         int retryLimit;
 
         public MetadataReportRetry(int retryTimes, int retryPeriod) {

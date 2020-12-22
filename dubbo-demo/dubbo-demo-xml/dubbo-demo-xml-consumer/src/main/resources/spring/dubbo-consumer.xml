@@ -24,7 +24,10 @@
     <dubbo:application name="demo-consumer"/>
 
     <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
-    <!-- 引用DemoService，这里指定了group为*，即可以引用任何group的Provider，同时merger设置为true，即需要对结果进行合并-->
-    <dubbo:reference id="demoService" check="false" interface="org.apache.dubbo.demo.DemoService" group="*" merger="true"/>
+    <!-- 引用DemoService，这里指定了group为*，即可以引用任何group的Provider，
+    同时merger设置为true，即需要对结果进行合并-->
+    <dubbo:reference id="demoService" check="false"
+                     interface="org.apache.dubbo.demo.DemoService"
+                     group="*" merger="true"/>
 
 </beans>
